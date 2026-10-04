@@ -7,34 +7,49 @@ public class ObjectPool : MonoBehaviour
 
     [Header("Pool Settings")]
     public GameObject projectilePrefab;
-    public int poolSize = 20;
+    public int poolSize = 30;
 
     readonly Queue<Projectile> _pool = new();
+    readonly List<Projectile> _all = new();
 
     void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
-        for (int i = 0; i < poolSize; i++)
+        if (projectilePrefab == null)
         {
-            var go = Instantiate(projectilePrefab, transform);
-            go.SetActive(false);
-            _pool.Enqueue(go.GetComponent<Projectile>());
+            Debug.LogError("ObjectPool requires a Projectile prefab.", this);
+            return;
         }
+        for (int i = 0; i < poolSize; i++) _pool.Enqueue(Create());
+    }
+
+    Projectile Create()
+    {
+        var go = Instantiate(projectilePrefab, transform);
+        go.SetActive(false);
+        var projectile = go.GetComponent<Projectile>();
+        if (projectile == null) projectile = go.AddComponent<Projectile>();
+        _all.Add(projectile);
+        return projectile;
     }
 
     public Projectile GetProjectile()
     {
-        if (_pool.Count > 0)
-            return _pool.Dequeue();
+        if (projectilePrefab == null) return null;
         // Expand pool if exhausted
-        var go = Instantiate(projectilePrefab, transform);
-        return go.GetComponent<Projectile>();
+        return _pool.Count > 0 ? _pool.Dequeue() : Create();
     }
 
     public void ReturnProjectile(Projectile p)
     {
         p.gameObject.SetActive(false);
-        _pool.Enqueue(p);
+        if (!_pool.Contains(p)) _pool.Enqueue(p);
+    }
+
+    public void ReturnAll()
+    {
+        foreach (var p in _all)
+            if (p != null && p.gameObject.activeSelf) p.ReturnToPool();
     }
 }

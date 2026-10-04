@@ -3,9 +3,9 @@ using UnityEngine;
 public class MeleeEnemy : EnemyBase
 {
     [Header("Melee")]
-    public float attackRange = 1.2f;
-    public int attackDamage = 10;
-    public float attackCooldown = 1.5f;
+    public float attackRange = 1.1f;
+    public int attackDamage = 20;
+    public float attackCooldown = 1.2f;
 
     [Header("Animation")]
     public Animator animator;
@@ -24,25 +24,39 @@ public class MeleeEnemy : EnemyBase
 
     protected override void HandleBehavior()
     {
-        float dist = Vector3.Distance(transform.position, _player.position);
+        float dist = FlatDistanceToPlayer();
+        float range = attackRange * WorldScale;
 
-        if (dist > attackRange)
+        if (dist > range)
         {
             MoveToward(_player.position);
-            animator?.SetBool(IsWalkingBool, true);
+            SetWalking(true);
         }
         else
         {
-            animator?.SetBool(IsWalkingBool, false);
+            FaceDirection(_player.position - transform.position);
+            SetWalking(false);
         }
 
         _attackTimer -= Time.deltaTime;
-        if (dist <= attackRange && _attackTimer <= 0f)
+        if (dist <= range && _attackTimer <= 0f)
         {
             _attackTimer = attackCooldown;
-            animator?.SetTrigger(AttackTrigger);
+            if (HasParameter(AttackTrigger)) animator.SetTrigger(AttackTrigger);
             PlayerController.Instance?.TakeDamage(attackDamage);
             AudioManager.Instance?.PlayMeleeDamage(transform.position);
         }
+    }
+
+    void SetWalking(bool walking)
+    {
+        if (HasParameter(IsWalkingBool)) animator.SetBool(IsWalkingBool, walking);
+    }
+
+    bool HasParameter(int hash)
+    {
+        if (animator == null || animator.runtimeAnimatorController == null) return false;
+        foreach (var p in animator.parameters) if (p.nameHash == hash) return true;
+        return false;
     }
 }

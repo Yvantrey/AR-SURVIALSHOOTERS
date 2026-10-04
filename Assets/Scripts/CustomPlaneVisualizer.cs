@@ -16,12 +16,15 @@ public class CustomPlaneVisualizer : MonoBehaviour
     MeshFilter _meshFilter;
     MeshRenderer _meshRenderer;
     ARPlane _plane;
+    Mesh _mesh;
 
     void Awake()
     {
         _plane = GetComponent<ARPlane>();
         _meshFilter = gameObject.AddComponent<MeshFilter>();
         _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+        _mesh = new Mesh { name = "AR Plane Name Mesh" };
+        _meshFilter.sharedMesh = _mesh;
         if (planeMaterial != null) _meshRenderer.material = planeMaterial;
     }
 
@@ -53,15 +56,22 @@ public class CustomPlaneVisualizer : MonoBehaviour
             tris[i * 3 + 2] = i + 2;
         }
 
+        float minX = float.PositiveInfinity, maxX = float.NegativeInfinity;
+        float minY = float.PositiveInfinity, maxY = float.NegativeInfinity;
+        for (int i = 0; i < boundary.Length; i++)
+        {
+            minX = Mathf.Min(minX, boundary[i].x); maxX = Mathf.Max(maxX, boundary[i].x);
+            minY = Mathf.Min(minY, boundary[i].y); maxY = Mathf.Max(maxY, boundary[i].y);
+        }
+
         var uvs = new Vector2[boundary.Length];
         for (int i = 0; i < boundary.Length; i++)
-            uvs[i] = new Vector2(verts[i].x * 0.5f + 0.5f, verts[i].z * 0.5f + 0.5f);
+            uvs[i] = new Vector2(Mathf.InverseLerp(minX, maxX, boundary[i].x), Mathf.InverseLerp(minY, maxY, boundary[i].y));
 
-        var mesh = new Mesh();
-        mesh.vertices = verts;
-        mesh.triangles = tris;
-        mesh.uv = uvs;
-        mesh.RecalculateNormals();
-        _meshFilter.mesh = mesh;
+        _mesh.Clear();
+        _mesh.vertices = verts;
+        _mesh.triangles = tris;
+        _mesh.uv = uvs;
+        _mesh.RecalculateNormals();
     }
 }

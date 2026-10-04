@@ -72,6 +72,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: shooter enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7177468309388d247ac240acef8724cb, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 3157116470694368027, guid: 7177468309388d247ac240acef8724cb, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -107,8 +111,11 @@ MonoBehaviour:
   maxHealth: 2
   scoreValue: 10
   moveSpeed: 2
+  height: 1.7
   shootRange: 5
   shootCooldown: 2
+  bulletDamage: 10
+  bulletSpeed: 7
   firePoint: {fileID: 8300430882047805576, guid: 1dc7524a49ec9034c9100c18af2a87b4, type: 3}
 --- !u!136 &6679200511049577394
 CapsuleCollider:

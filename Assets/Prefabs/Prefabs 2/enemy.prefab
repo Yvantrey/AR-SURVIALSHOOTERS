@@ -126,10 +126,11 @@ MonoBehaviour:
   maxHealth: 2
   scoreValue: 10
   moveSpeed: 2
+  height: 1.7
   attackRange: 1.2
   attackDamage: 10
   attackCooldown: 1.5
-  animator: {fileID: 0}
+  animator: {fileID: -3505782541611004366}
 --- !u!136 &389793106866296418
 CapsuleCollider:
   m_ObjectHideFlags: 0
